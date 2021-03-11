@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/me.css">
+    <title>归档</title>
+</head>
+<body>
+
+<!--导航-->
+<!--inverted:反转-->
+<nav th:replace="~{_fargments :: nav(4)}"></nav>
+<div style="padding-bottom: 2em !important; padding-top: 2em !important; max-width: 60em !important; margin: auto">
+    <div class="ui container">
+        <div class="ui top padded attached segment">
+            <div class="ui middle aligned three column grid">
+                <div class="column">
+                    <h3 class="ui teal header">归档</h3>
+                </div>
+                <div class="center aligned column">
+                    <div class="ui two column action grid">
+                        <div class="menu center aligned column">
+                            <div class="ui year dropdown item">
+                                <div class="text">
+                                    选择年份
+                                </div>
+                                <i class="ui dropdown icon"></i>
+                                <div class="menu">
+                                    <a href="#" class="item">全部</a>
+                                    <a th:each="y:${year}" href="#" class="item" th:text="${y}"></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div  class="menu center aligned column">
+                            <div class="ui month dropdown item">
+                                <div class="text">
+                                    选择月份
+                                </div>
+                                <i class="ui dropdown icon"></i>
+                                <div class="menu">
+                                    <a href="#" class="item">全部</a>
+                                    <a href="#" class="item">20</a>
+                                    <a href="#" class="item">20</a>
+                                    <a href="#" class="item">20</a>
+                                    <a href="#" class="item">20</a>
+                                    <a href="#" class="item">20</a>
+                                    <a href="#" class="item">20</a>
+                                    <a href="#" class="item">20</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="right aligned column">
+                    共<h3 class="ui orange header" style="display: inline-block !important;" th:text="${count}"></h3>篇博客
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="blog">
+        <div th:fragment="blog">
+            <div th:each="segment:${list}">
+                <h2 class="ui center aligned header" style="margin-top: 1em !important;" th:text="${segment.key}"></h2>
+                <div class="ui fluid vertical menu">
+                <a th:each="blog:${segment.value}" th:href="@{/index/BlogDetails(blogId=${blog.id})}" target="_blank" class="item">
+                    <span>
+                        <i class="teal circle icon"></i>[[${blog.title}]]
+                        <div class="ui teal basic left label m-padded-mini"
+                             th:text="${#strings.substring(blog.updateTime,5,7)+'月'+#strings.substring(blog.updateTime,8,10)+'号'}"></div>
+                    </span>
+                    <div class="ui orange basic right label m-padded-mini" th:text="${blog.flag}"></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<footer th:replace="_fargments :: footer"></footer>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"></script>
+<script>
+
+    $("#list").click(function () {
+        $(".m-hide").toggleClass("hide");
+    });
+
+    $('.ui.dropdown.user').dropdown({
+        on: 'hover'
+    });
+
+    if($("#username").prop("value")!=null){
+        $.ajax({
+            url:"/showAll?username="+$('#username').prop("value"),
+            type:"GET",
+            success:function (data) {
+                show(data);
+            }
+        });
+    }
+    function show(data) {
+        $("#user-image").prop("src",data.map.user.avatar);
+        $("#user-name").text(data.map.user.nickname);
+    }
+
+
+    $('.ui.year.dropdown').dropdown({
+        on: 'click',
+        onChange:function () {
+            var text = $(this).children("div.text").text();
+            $("#blog").load("/index/ArchiveBlog",{'text':text})
+        }
+    });
+    $('.ui.month.dropdown').dropdown({
+        on: 'click',
+        onChange:function () {
+            var text = $(this).children("div.text").text();
+            $("#blog").load();
+        }
+    });
+</script>
+</body>
+</html>

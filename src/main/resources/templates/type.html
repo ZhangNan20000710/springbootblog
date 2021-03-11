@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{_fargments :: head(分类)}">
+<body>
+
+<!--导航-->
+<!--inverted:反转-->
+<nav th:replace="~{_fargments :: nav(2)}"></nav>
+<div style="padding-bottom: 2em !important; padding-top: 2em !important; max-width: 60em !important; margin: auto">
+    <div class="ui container">
+        <div class="ui top attached segment">
+            <div class="ui middle aligned two column grid">
+                <div class="column">
+                    <h3 class="ui teal header">分类</h3>
+                </div>
+                <div class="right aligned column">
+                    共<h3 class="ui orange header" style="display: inline-block !important;" th:text="${count}"></h3>个
+                </div>
+            </div>
+        </div>
+
+        <div class="ui attached segment">
+            <span th:with="i=${i}"></span>
+            <div th:each="type,typestat:${all}" class="ui labeled button" style="margin-top: 0.2em !important; margin-bottom: 0.2em !important;">
+                <a th:if="${typestat.index==i}" th:href="@{/index/type(i=${typestat.index})}" class="ui basic teal button" th:text="${type.name}"></a>
+                <div th:if="${typestat.index==i}" class="ui basic teal left pointing label" th:text="${type.typeCount}"></div>
+                <a th:if="${typestat.index!=i}" th:href="@{/index/type(i=${typestat.index})}" class="ui basic gray button" th:text="${type.name}"></a>
+                <div th:if="${typestat.index!=i}" class="ui basic gray left pointing label" th:text="${type.typeCount}"></div>
+            </div>
+        </div>
+        <div class="ui top attached teal segment">
+            <div class="ui attached segment">
+                <!--设置垂直-->
+                <div th:each="blog:${blogs.content}" class="ui vertical segment" style="margin-top: 1em !important;">
+                    <div class="ui middle aligned mobile reversed stackable grid">
+                        <div class="eleven wide column">
+                            <h3 class="ui header">
+                                <a th:href="@{/index/BlogDetails(blogId=${blog.id})}" th:text="${blog.title}"></a>
+                            </h3>
+                            <span th:if="${#strings.length(blog.content)>100}">
+                                        <p style="height: 6em" th:text="${#strings.substring(blog.content,0,100)+'....'}"></p>
+                                    </span>
+                            <span th:if="${#strings.length(blog.content)<=100}">
+                                        <p style="height: 6em" th:text="${blog.content}"></p>
+                                    </span>
+                            <div class="ui grid">
+                                <!--详情-->
+                                <div class="eleven wide column">
+                                    <!--横向列表-->
+                                    <div class="ui link list horizontal">
+                                        <div class="item">
+                                            <img src="/images/a.png" class="ui avatar image">
+                                            <div class="content">
+                                                <a href="#" class="header" th:text="${blog.user.nickname}"></a>
+                                            </div>
+                                        </div>
+                                        <div class="item">
+                                            <i class="calendar icon"></i>[[${#strings.substring(blog.createTime,0,10)}]]
+                                        </div>
+                                        <div class="item">
+                                            <i class="eye icon"></i>[[${blog.views}]]
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--标签-->
+                                <div class="five wide column right aligned">
+                                            <span th:if="${#strings.length(blog.type.name)>8}">
+                                                <a href="#" class="ui label teal basic" style="padding: 0.3em" th:text="${#strings.substring(blog.type.name,0,8)+'...'}"></a>
+                                            </span>
+                                    <span th:if="${#strings.length(blog.type.name)<8}">
+                                                <a href="#" class="ui label teal basic" style="padding: 0.3em" th:text="${blog.type.name}"></a>
+                                            </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="five wide column">
+                            <img th:src="${blog.firstPicture}" style="height: 80%;width: 100%" class="ui rounded image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ui bottom attached attached segment">
+            <!--两列-->
+            <div class="ui middle aligned three column grid">
+                <div class="column">
+                    <a th:if="${!blogs.first}" th:href="@{/index/type(page=${blogs.number}-1,i=${i})}" id="up" href="#" class="ui teal basic button">上一页</a>
+                </div>
+                <div class="column center aligned">
+                    当前第【<h4 class="ui header orange" style="display: inline-block !important;" th:text="${blogs.number+1}"></h4>】页，共【<h4 class="ui header orange" style="display: inline-block !important;" th:text="${blogs.totalPages}"></h4>】页
+                </div>
+                <div class="column right aligned">
+                    <a th:if="${!blogs.last}" th:href="@{/index/type(page=${blogs.number}+1,i=${i})}" id="down" class="ui teal basic button">下一页</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<footer th:replace="_fargments :: footer"></footer>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"></script>
+<script>
+
+    $("#list").click(function () {
+        $(".m-hide").toggleClass("hide");
+    });
+
+    $('.ui.dropdown.user').dropdown({
+        on: 'hover'
+    });
+
+    if($("#username").prop("value")!=null){
+        $.ajax({
+            url:"/showAll?username="+$('#username').prop("value"),
+            type:"GET",
+            success:function (data) {
+                show(data);
+            }
+        });
+    }
+
+    function show(data) {
+        $("#user-image").prop("src",data.map.user.avatar);
+        $("#user-name").text(data.map.user.nickname);
+    }
+
+</script>
+</body>
+</html>

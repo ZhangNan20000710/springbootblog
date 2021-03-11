@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{_2fargments :: head(博客详情)}">
+<body>
+<nav th:replace="~{_2fargments :: menu(0)}"></nav>
+<div style="padding-bottom: 2em !important; padding-top: 2em !important; max-width: 60em !important; margin: auto">
+    <input type="hidden" id="blogId" th:value="${param.blogId}">
+    <div class="ui container">
+        <div class="ui top attached segment">
+            <!--头部信息-->
+            <div class="ui grid">
+                <!--详情-->
+                <div class="eleven wide column">
+                    <!--横向列表-->
+                    <div class="ui link list horizontal">
+                        <div class="item">
+                            <img id="avatar" src="" class="ui avatar image">
+                            <div class="content">
+                                <a href="#" class="header" id="user-nick-name">ddddddd</a>
+                            </div>
+                        </div>
+                        <div class="item" id="update-time">
+                        </div>
+                        <div class="item" id="views">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ui attached segment">
+            <!--图片区域-->
+            <img src="" id="First-picture" alt="" class="ui fluid image">
+        </div>
+        <div class="ui attached segment">
+            <!--内容-->
+            <div class="ui right aligned basic segment">
+                <p class="ui label orange" id="flag"></p>
+            </div>
+            <h2 class="ui centered header" id="title">
+
+            </h2>
+            <br>
+            <div class="m-lr-res">
+                <div style="min-height: 30em !important;" id="content">
+
+                </div>
+            </div>
+            <div style="padding-left: 6em !important;">
+                <!--<a class="ui teal label basic left pointing">
+                    方法论
+                </a>-->
+                <div content="ui menu" id="tags">
+
+                </div>
+            </div>
+            <div class="ui image-QR flowing popup top left transition hidden">
+                <div class="ui basic orange label">
+                    <div class="ui images">
+                        <div class="image">
+                            <img src="/images/@VEG_L}7X6G2(PJB3B9X758.png" class="ui rounded bordered image" style="width: 120px" alt="">
+                        </div>
+                        <div class="image">
+                            <img src="/images/@VEG_L}7X6G2(PJB3B9X758.png" class="ui rounded bordered image" style="width: 120px;" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ui attached positive message">
+            <!--博客信息-->
+            <div class="ui middle aligned grid">
+                <div class="eleven wide column">
+                    <ul class="list">
+                        <li>asdf</li>
+                        <li>asdf</li>
+                        <li>dfs</li>
+                        <li>sdf</li>
+                    </ul>
+                </div>
+                <div class="five wide column">
+                    <img src="/images/@VEG_L}7X6G2(PJB3B9X758.png" alt="" class="ui right floated rounded bordered image">
+                </div>
+            </div>
+        </div>
+        <div class="ui teal segment" >
+            <div class="ui threaded comments">
+                <h3 id="comments" class="ui dividing header">全部评论</h3>
+                <div id="page" class="ui segment teal"></div>
+                <form id="commentForm" class="ui reply form">
+                    <div class="field">
+                        <textarea placeholder="请输入评论信息..." id="comment-content"></textarea>
+                    </div>
+                    <div id="submit1" class="ui blue labeled icon button">
+                        <i class="icon edit"></i> 评论
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<footer th:replace="_2fargments :: footer"></footer>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"></script>
+<script>
+
+    $("#list").click(function () {
+        $(".m-hide").toggleClass("hide");
+    });
+    $('.ui.dropdown').dropdown({
+        on: 'hover'
+    });
+
+    var blogId;
+    var userId;
+    $(function () {
+        showAll(0)
+    });
+    function showAll(i){
+        $("#update-time").empty();
+        $("#views").empty();
+        $(".comment-node").remove();
+        $("#page").empty();
+        $("#tags").empty();
+        $.ajax({
+            url:"/showAll?username="+$('#username').prop("value"),
+            type:"GET",
+            success:function (data) {
+                userId=data.map.user.id;
+                show(data);
+            }
+        });
+        $.ajax({
+            url:"/showContent/"+$("#blogId").prop("value"),
+            type:"GET",
+            success:function (data) {
+                blogId=data.map.list.id;
+                showContent(data);
+                if(!data.map.list.commentabled){
+                    $("#comments").text("该博客未开启评论功能");
+                    $("#commentForm").remove();
+                    $("#page").remove();
+                }else {
+                    $.ajax({
+                        url:"/showComments/"+i,
+                        data:{"blogId":$("#blogId").prop("value")},
+                        type:"GET",
+                        success:function (data) {
+                            showComments(data)
+                        }
+                    })
+                }
+            }
+        });
+    }
+
+
+    function show(data) {
+        $("#user-image").prop("src",data.map.user.avatar);
+        $("#user-name").text(data.map.user.username);
+    }
+
+    /***
+     *
+     *显示博客内容
+     **/
+    function showContent(data){
+        var list = data.map.list;
+        $("#avatar").prop("src",list.user.avatar);
+        $("#user-nick-name").text(list.user.nickname);
+        //<i class="calendar icon"></i>
+        $("#update-time").append($("<i></i>").addClass("calendar icon")).append(FormatDate(new Date(list.updateTime)));
+        //<i class="eye icon"></i>
+        $("#views").append($("<i></i>").addClass("eye icon")).append(list.views);
+        $("#First-picture").prop("src",list.firstPicture);
+        $("#flag").text(list.flag);
+        $("#title").text(list.title);
+        $("#content").text(list.content);
+        /**
+         *
+         */
+        $.each(list.tags,function (index,i) {
+            $("#tags").append($("<div></div>").addClass("item").append($("<a></a>").addClass("ui teal label basic left pointing m-margin-tb-tiny").append(i.name)))
+        })
+    }
+    function FormatDate(date1) {
+        var year = date1.getUTCFullYear();
+        var month = date1.getMonth();
+        var day = date1.getUTCDay();
+        return year+"-"+month+"-"+day;
+    }
+
+    function FormatDate2(date1) {
+        var date = new Date().getTime();
+        var date2 = date-date1;
+        var year =Math.floor(date2/1000/60/60/24/30/12);
+        var month =Math.floor(date2/1000/60/60/24/30);
+        var day =Math.floor(date2/1000/60/60/24);
+        var hours =Math.floor(date2/1000/60/60);
+        var minutes =Math.floor(date2/1000/60);
+        if(year>=1){
+            return date2+"  "+year+"年前"
+        }else if(month>=1){
+            return month+"个月前";
+        }else if(day>=1){
+            return day+"天前";
+        }else if(hours>=1){
+            return hours+"小时前";
+        }else if(minutes>=1){
+            return minutes+"分钟前";
+        }else {
+            return "刚刚";
+        }
+    }
+
+    $("#submit1").click(function () {
+        $.ajax({
+            url:"/addComment",
+            type:"POST",
+            data:{"content":$("#comment-content").val(),"userId":userId,"blogId":blogId},
+            success:function(data) {
+                if(data.code==200) {
+                    alert("评论成功");
+                    $("#comment-content").val("");
+                    showAll(0);
+                }
+            }
+        })
+    });
+
+    /**
+     *
+     * @param data
+     */
+    var index;
+    function showComments(data) {
+        var list = data.map.list.content;
+
+        $.each(list,function (index,i) {
+            var comment =$("<div></div>").attr("name","comment"+i.id).addClass("comment comment-node");
+            var avatar=$("<div></div>").addClass("avatar").append($("<img>").attr("src",i.user.avatar).addClass("ui avatar image"));
+            var content=$("<div></div>").addClass("content");
+            var author=$("<a></a>").addClass("author").append(i.user.nickname);
+            var metadata=$("<div></div>").addClass("metadata").append($("<span></span>").addClass("date").append(FormatDate2(i.createTime)));
+            var text=$("<div></div>").addClass("text").append(i.content);
+            if(i.replyCount==0){
+                var actions=$("<div></div>").addClass("actions").append($("<a></a>").append("回复").attr("reply-id",i.id).addClass("reply-comment"))
+                    .append($("<a></a>").addClass("view-reply").append("暂无回复"));
+            }else {
+                var actions=$("<div></div>").addClass("actions").append($("<a></a>").append("回复").attr("reply-id",i.id).addClass("reply-comment"))
+                    .append($("<a></a>").addClass("view-reply").append("查看回复").append($("<i></i>").addClass("angle down icon")));
+            }
+            content.append(author).append(metadata).append(text).append(actions);
+            comment.append(avatar);
+            comment.append(content);
+            $("#page").before(comment);
+        });
+        var noNullAll = data.map.noNullAll;
+        $.each(noNullAll,function (index,i) {
+            var name =i.user.nickname;
+            var replyName=i.parentComment.user.nickname;
+            var pc=i;
+            var c=0;
+            while (pc.parentComment!=null) {
+                c++;
+                pc=pc.parentComment;
+            }
+            var parentCommentId="comment"+pc.id;
+            var parent = $("[name="+parentCommentId+"]");
+            var comment =$("<div></div>").attr("name","comment"+i.id).addClass("comment comment-node");
+            var avatar=$("<div></div>").addClass("avatar").append($("<img>").attr("src",i.user.avatar).addClass("ui avatar image"));
+            var content=$("<div></div>").addClass("content");
+            var author=$("<a></a>").addClass("author").append(name);
+            var replyAuthor=$("<a></a>").append(replyName);
+            var metadata=$("<div></div>").addClass("metadata").append($("<span></span>").addClass("date").append(FormatDate2(i.createTime)));
+            var text=$("<div></div>").addClass("text").append(i.content);
+            var actions=$("<div></div>").addClass("actions").append($("<a></a>").append("回复").attr("reply-id",i.id).addClass("reply-comment"));
+            content.append(author);
+            if(c!=1){
+                content.append("回复").append(replyAuthor);
+            }
+            content.append(metadata).append(text).append(actions);
+            comment.append(avatar);
+            comment.append(content);
+            if(parent.children(".comments").length>0){
+                parent.children(".comments").children(".segment").append(comment);
+            }else {
+                var comments= $("<div></div>").addClass("collapsed comments");
+                parent.append(comments);
+                comments.append($("<div></div>").addClass("ui teal segment")
+                    .append($("<h4></h4>").addClass("ui dividing header").append("全部回复")).append(comment))
+            }
+
+        });
+        /**
+         * @type {HTMLElement}
+         */
+
+        var page=data.map.list;
+        index=page.number;
+        var pageBar = $("#page");
+        pageBar.append("当前第").append($("<div style='display: inline-block !important;'></div>")
+            .addClass("ui orange header").append(page.number+1)).append("页")
+            .append(",共").append($("<div style='display: inline-block !important;'></div>")
+            .addClass("ui orange header").append(page.totalPages)).append("页")
+            .append($("<i></i>").addClass("comment alternate icon")).append("("+page.totalElements+")")
+        var up =$("<button></button>").addClass("ui teal button").append("上一页");
+        up.click(function () {
+            showAll(page.number-1);
+        });
+        var down =$("<button></button>").addClass("ui teal button").append("下一页");
+        down.click(function () {
+            showAll(page.number+1);
+        });
+        if(!page.first){
+            pageBar.append(up);
+        }
+        if(!page.last){
+            pageBar.append(down);
+        }
+    }
+
+    /**
+     * <form class="ui form">
+         <div class="field">
+         <div class="ui left labeled action input" style="width: 50% !important;">
+         <input type="text" placeholder="回复。。。。">
+         <button class="ui blue button">发布</button>
+         </div>
+         </div>
+     *</form>
+     */
+    $(document).on("click",".reply-comment",function () {
+        var author=$(this).parent().parent().find("a:eq(0)").text();
+        var replyId = $(this).attr("reply-id");
+        $(".comment-form").empty();
+        $(".reply-submit").remove();
+        var form=$("<form></form>").addClass("ui form comment-form");
+        var field=$("<div></div>").addClass("field");
+        var input=$("<div></div>").addClass("ui left labeled action input");
+        var text=$("<input type='text'>").attr("id","parentId").attr("placeholder","回复"+author+":");
+        var button=$("<div></div>").addClass("ui right aligned container")
+            .append($("<button></button>").attr("parent-id",replyId).addClass("ui blue button reply-submit m-margin-tb-tiny")
+            .append($("<i></i>").addClass("icon edit")).append("回复"));
+        input.append(text);
+        field.append(input);
+        form.append(field);
+        $(this).after(form);
+        form.after(button);
+    });
+
+    $(document).on("click",".reply-submit",function () {
+        var parentId = $(this).attr("parent-id");
+        $.ajax({
+            url:"/addComment",
+            data:{"content":$("#parentId").prop("value"),"userId":userId,"blogId":blogId,"parentId":parentId},
+            type:"POST",
+            success:function (data) {
+                if(data.code==200){
+                    alert("回复成功");
+                    showAll(index)
+                }
+            }
+        })
+    });
+
+    //查看回复
+    $(document).on("click",".view-reply",function () {
+        $(this).parent().parent().next().toggleClass("collapsed");
+    })
+</script>
+</body>
+</html>

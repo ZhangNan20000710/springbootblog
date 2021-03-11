@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(n)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/me.css">
+    <title th:text="${n}"></title>
+</head>
+<body>
+
+<!--导航-->
+<nav th:fragment="menu(n)" class="ui inverted attached segment m-padded-tb-mini m-shadow-small">
+    <input type="hidden" id="username" th:value="${session.username}">
+    <!--容器-->
+    <div class="ui container">
+        <div class="ui inverted secondary stackable menu">
+            <h2 class="ui teal header item">后台管理</h2>
+            <a href="/blogList" class="m-hide hide item" th:classappend="${n==1} ? 'active'"><i class="home icon"></i>博客</a>
+            <a href="/types" class="m-hide hide item" th:classappend="${n==2} ? 'active'"><i class="idea icon"></i>分类</a>
+            <a href="/tags" class="m-hide hide item" th:classappend="${n==3} ? 'active'"><i class="tags icon"></i>标签</a>
+            <a href="/" class="m-hide hide item" th:classappend="${n==4} ? 'active'"><i class="tags icon"></i>博客首页</a>
+            <div class="right menu">
+                <div class="ui m-hide hide dropdown item">
+                    <div class="text">
+                        <img id="user-image" src="" class="ui avatar image">
+                        <a href="#" id="user-name"></a>
+                    </div>
+                    <i class="ui dropdown icon"></i>
+                    <div class="menu">
+                        <a href="#" class="item">个人中心</a>
+                        <a href="/Logout" class="item">注销</a>
+                    </div>
+                </div>
+            </div>
+            <a href="#" id="list" class="ui black icon button m-top-right m-show">
+                <i class="sidebar icon"></i>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<footer th:fragment="footer" class="ui inverted vertical segment" style="padding-top: 5em !important;padding-bottom: 5em !important;">
+    <!--容器，居中-->
+    <div class="ui center aligned container">
+        <!--行，颜色反转，分隔线-->
+        <div class="ui inverted divided stackable grid">
+            <div class="three wide column">
+                <div class="ui inverted link list">
+                    <a href="#" class="item">
+                        <img src="/images/@VEG_L}7X6G2(PJB3B9X758.png" class="ui rounded image" style="width: 100px"
+                             alt="">
+                    </a>
+                </div>
+            </div>
+            <div class="three wide column">
+                <h4 class="ui inverted header">博客</h4>
+                <div class="ui inverted link list">
+                    <a href="#" class="item">sasdfs</a>
+                    <a href="#" class="item">ssasd</a>
+                    <a href="#" class="item">sasdfas</a>
+                </div>
+            </div>
+
+            <div class="three wide column">
+                <h4 class="ui inverted header">博客</h4>
+                <div class="ui inverted link list">
+                    <a href="#" class="item">sasdfs</a>
+                    <a href="#" class="item">ssasd</a>
+                    <a href="#" class="item">sasdfas</a>
+                </div>
+            </div>
+            <div class="seven wide column">
+                <h4 class="ui inverted header">博客</h4>
+                <p>
+                    sadfda撒打发士大夫大撒旦发顺丰发撒
+                </p>
+            </div>
+        </div>
+        <div class="ui inverted section divider"></div>
+        <p>啊手动阀示范点</p>
+    </div>
+</footer>
+
+</body>
+</html>

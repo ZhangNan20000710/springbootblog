@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{_2fargments :: head(用户注册)}">
+</head>
+<body>
+<div class="m-container-small m-padded-tb-massive" style="max-width: 30em !important;">
+    <div class="ui container">
+        <div class="ui middle aligned center aligned grid">
+            <div class="column">
+                <h2 class="ui teal image header">
+                    <div class="content">
+                        注册用户
+                    </div>
+                </h2>
+                <form class="ui large form" id="register-form" METHOD="post">
+                    <div class="ui stacked segment">
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="user icon"></i>
+                                <input type="text" name="username" placeholder="用户名">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="lock icon"></i>
+                                <input type="password" name="password" placeholder="密码">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="user outline icon"></i>
+                                <input type="text" name="nickname" placeholder="昵称">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui left icon action input">
+                                <i class="user circle icon"></i>
+                                <input type="text" readonly="true" id="dev" placeholder="头像">
+                                <input type="file" id="userImage" accept="image/*" onchange="dev.value=this.value" style="display: none;">
+                                <input type="button" class="ui teal button" value="选择图片" onclick="document.getElementById('userImage').click()">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="envelope icon"></i>
+                                <input type="text" name="email" placeholder="邮箱">
+                            </div>
+                        </div>
+                        <div id="register" class="ui fluid large teal submit button">注册</div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<script>
+    $("#register").click(function () {
+        var form=$("#register-form")[0];
+        var dataFrom=new FormData(form);
+        dataFrom.append("file",$("#userImage")[0].files[0]);
+        $.ajax({
+            type:"POST",
+            url:"/register",
+            data:dataFrom,
+            dataType:"json",
+            mimeType:"multipart/form-data",
+            processData:false,
+            contentType:false,
+            success:function (data) {
+                if(data.code==200){
+                    alert("注册成功")
+                    location.href="/login";
+                }else {
+                    alert("注册失败,"+data.massage)
+                }
+            }
+        })
+    })
+</script>
+</body>
+</html>

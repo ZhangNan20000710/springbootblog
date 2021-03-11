@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/me.css">
+    <title>关于我</title>
+</head>
+<body>
+
+<!--导航-->
+<!--inverted:反转-->
+<nav th:replace="~{_fargments :: nav(5)}"></nav>
+<div style="padding-bottom: 2em !important; padding-top: 2em !important; max-width: 72em !important; margin: auto">
+    <div class="ui container">
+        <div class="ui stackable grid">
+            <div class="eleven wide column">
+                <div class="ui segment">
+                    <img src="/images/a.png" class="ui rounded image" alt="">
+                </div>
+            </div>
+            <div class="five wide column">
+                <div class="ui top attached segment">
+                    <div class="ui herder">关于我</div>
+                </div>
+                <div class="ui attached segment">
+                    <p>阿萨大大撒旦发爱上飞机记录卡撒旦艰苦你开始打架啊什么快递发撒旦马上离开父母</p>
+                    <p>阿萨大大撒旦发爱上飞机记录卡撒旦艰苦你开始打架啊什么快递发撒旦马上离开父母</p>
+                    <p>阿萨大大撒旦发爱上飞机记录卡撒旦艰苦你开始打架啊什么快递发撒旦马上离开父母</p>
+                </div>
+                <div class="ui attached segment">
+                    <a href="" class="ui orange basic left label" style="margin-bottom: 0.3em !important;margin-top: 0.3em !important;">撒打</a>
+                    <a href="" class="ui orange basic left label">度放</a>
+                    <a href="" class="ui orange basic left label">度法</a>
+                    <a href="" class="ui orange basic left label">大方</a>
+                    <a href="" class="ui orange basic left label">程度</a>
+                    <a href="" class="ui orange basic left label">若干</a>
+                    <a href="" class="ui orange basic left label">菜单</a>
+                </div>
+                <div class="ui attached segment">
+                    <a href="" class="ui left pointing teal basic left label" style="margin-bottom: 0.3em !important;margin-top: 0.3em !important;">撒打</a>
+                    <a href="" class="ui left pointing teal basic left label">度放</a>
+                    <a href="" class="ui left pointing teal basic left label">度法</a>
+                    <a href="" class="ui left pointing teal basic left label">大df方</a>
+                    <a href="" class="ui left pointing teal basic left label">程度</a>
+                    <a href="" class="ui left pointing teal basic left label">若干</a>
+                    <a href="" class="ui left pointing teal basic left label">菜单</a>
+                </div>
+                <div class="ui bottom attached segment">
+                    <a class="ui circular icon button"><i class=" github icon"></i></a>
+                    <a class="ui circular icon button"><i class=" weixin icon"></i></a>
+                    <a class="ui QQhm circular icon button" data-content="2546032733"><i class=" qq icon"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<footer th:replace="_fargments :: footer"></footer>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"></script>
+<script>
+    $("#list").click(function () {
+        $(".m-hide").toggleClass("hide");
+    });
+    $('.ui.dropdown.user').dropdown({
+        on: 'hover'
+    });
+    if($("#username").prop("value")!=null){
+        $.ajax({
+            url:"/showAll?username="+$('#username').prop("value"),
+            type:"GET",
+            success:function (data) {
+                show(data);
+            }
+        });
+    }
+    function show(data) {
+        $("#user-image").prop("src",data.map.user.avatar);
+        $("#user-name").text(data.map.user.nickname);
+    }
+
+</script>
+</body>
+</html>

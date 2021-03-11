@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{_2fargments :: head(博客列表)}"></head>
+
+<body>
+
+<nav th:replace="~{_2fargments :: menu(2)}"></nav>
+
+<div style="padding-bottom: 2em !important; padding-top: 2em !important; max-width: 72em !important; min-height: 30em !important; margin: auto">
+    <div class="ui container">
+        <!--模态框：添加分类-->
+        <div class="ui modal add"  style="width: 40em !important;">
+            <div class="header">添加分类</div>
+            <div class="content">
+                <form action="" class="ui form" id="addForm">
+                    <div class="field">
+                        <div class="ui red header" id="addMsg"></div>
+                        <div class="ui left labeled action input">
+                            <label class="ui teal basic label">名称</label>
+                            <input id="name" type="text" name="name" placeholder="分类名称">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="actions">
+                <div id="submit1" class="ui teal button">提交</div>
+            </div>
+        </div>
+
+        <!--修改分类-->
+        <div class="ui modal alter"  style="width: 40em !important;">
+            <div class="header">修改分类</div>
+            <div class="content">
+                <form action="" id="alterForm" class="ui form">
+                    <div class="field">
+                        <div class="ui red header" id="alterMsg"></div>
+                        <div class="ui left labeled action input">
+                            <label class="ui teal basic label">名称</label>
+                            <input id="name2" type="text" name="name" placeholder="分类名称">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="actions">
+                <div id="submit2" class="ui teal button">完成</div>
+            </div>
+        </div>
+        <table class="ui stackable compact teal celled table">
+            <thead>
+            <tr>
+                <th></th>
+                <th>名称</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="Type-tbody">
+
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>
+                    <div class="ui left floated">
+                        <button  class="ui blue button" id="add-type"><i class="plus icon"></i>新增</button>
+                    </div>
+                </th>
+                <th>
+                    <div class="ui left floated pagination menu">
+                        <div class="ui item">
+
+                        </div>
+                    </div>
+                </th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<footer th:replace="~{_2fargments :: footer}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"></script>
+<script>
+    $("#list").click(function () {
+        $(".m-hide").toggleClass("hide");
+    });
+
+    $('.ui.dropdown').dropdown({
+        on: 'hover'
+    });
+
+
+    function showAll(i){
+        $("#Type-tbody").empty();
+        $(".ui.left.floated.pagination.menu").empty();
+        $.ajax({
+            url:"/showAll?username="+$('#username').prop("value"),
+            type:"GET",
+            success:function (data) {
+                show(data);
+            }
+        });
+        $.ajax({
+            url:"/ShowTypes/"+i,
+            type:"GET",
+            success:function (data) {
+                showTypes(data);
+            }
+        });
+    }
+    $(function () {
+        showAll(0);
+    });
+
+    function show(data) {
+        $("#user-image").prop("src",data.map.user.avatar);
+        $("#user-name").text(data.map.user.nickname);
+    }
+
+
+    var index;// 全局变量，存放当前页码页码
+    function showTypes(data){
+        var list=data.map.list.content;//每页的集合
+        index=data.map.list.number;
+        $.each(list,function (index,i) {
+            var tr = $("<tr></tr>");
+            var td_id =$("<td></td>").append(i.id);
+            var td_name =$("<td></td>").append(i.name);
+            var bt_alter = $("<button></button>").
+            addClass("ui teal button").
+            append($("<i></i>").addClass("edit outline icon")).
+            append("修改").addClass("alter");
+
+            var bt_delete = $("<button></button>").addClass("ui red button").
+            append($("<i></i>").addClass("trash alternate icon")).
+            append("删除").addClass("del");
+            var td_operation=$("<td></td>").append(bt_alter).append(bt_delete);
+            tr.append(td_id)
+                .append(td_name)
+                .append(td_operation)
+                .appendTo("#Type-tbody");
+        });
+
+        var Paging =data.map.list.number;//当前页码
+        var totalPages =data.map.list.totalPages;//总页数
+        $(".ui.left.floated.pagination.menu").append($("<button></button>").addClass("ui item teal label").append("当前页码【"+(Paging+1)+"】总页数【"+totalPages+"】"));
+        var up = $("<button></button>").addClass("ui teal button item").append("上一页");
+        up.click(function () {
+           showAll(Paging-1)
+        });
+        if(!data.map.list.first){
+           $(".ui.left.floated.pagination.menu").append(up)
+        }
+
+        var down = $("<button></button>").addClass("ui teal button item").append("下一页");
+        down.click(function () {
+            showAll(Paging+1)
+        });
+        if(!data.map.list.last){
+            $(".ui.left.floated.pagination.menu").append(down)
+        }
+    }
+
+    $("#add-type").click(function () {
+        $('.ui.modal.add').modal('show',{
+            refresh:false
+        });
+    });
+
+    $("#submit1").click(function () {
+        $.ajax({
+            type:"POST",
+            url:"/addTypes",
+            data:$("#addForm").serialize(),
+            success:function (data) {
+                if(data.code==200){
+                    alert("添加成功");
+                    $('.ui.modal.add').modal('hide');
+                    showAll(index);
+                }
+                else {
+                    $('#addMsg').text("添加失败"+data.massage);
+                }
+            }
+        })
+    });
+
+    $("#name").change(function () {
+        $('#addMsg').text("")
+    });
+    $("#name2").change(function () {
+        $('#alterMsg').text("")
+    });
+    
+    //单击删除
+    $(document).on("click",".del",function () {
+        var id=$(this).parents("tr").find("td:eq(0)").text();
+        var name=$(this).parents("tr").find("td:eq(1)").text();
+        if(confirm("确认删除用户:【"+name+"】吗？？")){
+            $.ajax({
+                type:"DELETE",
+                url:"/DelType/"+id,
+                success:function (data) {
+                    if(data.code==200){
+                        showAll(index)
+                    }else{
+                        alert("删除失败")
+                    }
+                }
+            })
+        }
+    });
+    var id1;
+    //弹出修改模态框
+    $(document).on("click",".alter",function (){
+        $(this).parents("tr").find("td:eq(0)").text();
+        alert(id1);
+        $('.ui.modal.alter').modal('show');
+    });
+
+    // 修改完成
+    $("#submit2").click(function () {
+        $.ajax({
+            type:"PUT",
+            data:$("#alterForm").serialize(),
+            url:"/AlterType/"+id1,
+            success:function(data) {
+                if(data.code==200){
+                    alert("修改成功");
+                    showAll(index);
+                }else {
+                    $('#alterMsg').text("修改失败"+data.massage);
+                }
+            }
+        })
+    })
+
+</script>
+</body>
+</html>

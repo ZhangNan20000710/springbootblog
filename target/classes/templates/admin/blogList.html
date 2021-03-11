@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{_2fargments :: head(博客列表)}"></head>
+
+<body>
+<!--导航-->
+<!--inverted:反转-->
+<nav th:replace="~{_2fargments :: menu(1)}"></nav>
+
+<div class="ui attached pointing menu">
+    <div class="ui container">
+        <div class="right menu">
+            <a href="/blogPublish" class="item">发布</a>
+            <a href="/blogList" class="active teal item">列表</a>
+        </div>
+    </div>
+</div>
+
+<div style="padding-bottom: 2em !important; padding-top: 2em !important; max-width: 72em !important; min-height: 30em !important; margin: auto">
+    <div class="ui container">
+        <form action="" id="Search-form" class="ui stackable secondary segment form">
+            <input type="hidden" name="username" th:value="${session.username}">
+            <div class="inline fields">
+                <div class="field">
+                    <input type="text" name="title" placeholder="标题">
+                </div>
+                <div class="field">
+                    <div class="ui selection dropdown">
+                        <input type="hidden" name="type.id">
+                        <i class="ui dropdown icon"></i>
+                        <div class="default text">分类</div>
+                        <div class="menu" id="types">
+                            <!--<div class="item" data-value="1">撒打发</div>
+                            <div class="item" data-value="2">的萨芬</div>
+                            <div class="item" data-value="3">梵蒂冈</div>
+                            <div class="item" data-value="4">规划局</div>-->
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" id="recommened" name="recommened">
+                        <label for="recommened">推荐</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui blue basic button" id="Search"><i class="search icon"></i>搜索</div>
+                </div>
+                <a href="/blogPublish" class="ui blue button"><i class="plus icon"></i>新增</a>
+            </div>
+        </form>
+        <div id="search-Result">
+
+        </div>
+        <table class="ui stackable compact teal table">
+            <thead>
+            <tr>
+                <th></th>
+                <th>标题</th>
+                <th>类型</th>
+                <th>推荐</th>
+                <th>状态</th>
+                <th>更新时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="blog_list">
+            <!--<tr>
+                <td>1</td>
+                <td>萨芬地方</td>
+                <td>认知升级</td>
+                <td>2000-1-1</td>
+                <td>2000-1-1</td>
+                <td>
+                    <a href="#" class="ui teal button"><i class="edit outline icon"></i>修改</a>
+                    <a href="#" class="ui red button"><i class="trash alternate icon"></i>删除</a>
+                </td>
+            </tr>-->
+            </tbody>
+            <tfoot>
+            <tr>
+                <th colspan="6">
+                    <div class="ui right floated pagination menu">
+                        <!--<a class="icon item">
+                            <i class="left chevron icon"></i>
+                        </a>
+                        <a class="item">1</a>
+                        <a class="item">2</a>
+                        <a class="item">3</a>
+                        <a class="item">4</a>
+                        <a class="icon item">
+                            <i class="right chevron icon"></i>
+                        </a>-->
+                    </div>
+                </th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+
+<footer th:replace="~{_2fargments :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"></script>
+
+<script >
+    $("#list").click(function () {
+        $(".m-hide").toggleClass("hide");
+    });
+
+    $('.ui.dropdown').dropdown({
+        on: 'hover'
+    });
+    $(function () {
+        $.ajax({
+            url:"/showAll?username="+$('#username').prop("value"),
+            type:"GET",
+            success:function (data) {
+                show(data);
+            }
+        });
+        //显示全部
+        showAll(0)
+        //显示分类
+        $.ajax({
+            url:"/ShowTypes/-1",
+            type:"GET",
+            success:function (data) {
+                showTypes(data)
+            }
+        });
+    });
+    function showAll(i) {
+        $(".ui.right.floated.pagination.menu").empty();
+        $("#blog_list").empty();
+        $.ajax({
+            type:"GET",
+            url:"/showBlog/"+i,
+            data:{'username':$('#username').prop("value")},
+            success:function (data) {
+                showBlog(data);
+                showPage(data);
+            }
+        })
+    }
+    function show(data) {
+        $("#user-image").prop("src",data.map.user.avatar);
+        $("#user-name").text(data.map.user.nickname);
+    }
+
+    //显示博客列表
+    function showBlog(data){
+        var list = data.map.list;
+        $.each(list.content,function (index,i) {
+            var tr = $("<tr></tr>");
+            var td_id=$("<td></td>").append(i.id);
+            var td_title=$("<td></td>").append($("<a></a>").attr("href","/BlogDetails?blogId="+i.id).append(i.title));
+            var td_status=$("<td></td>").append(i.published?'已发布':'草稿');
+            var td_recommend=$("<td></td>").append(i.recommened?'是':'否');
+            var td_update=$("<td></td>").append(FormatDate(new Date(i.updateTime)));
+            var td_type=$("<td></td>").append(i.type.name);
+            var btn_alter=$("<button></button>").addClass("ui teal button")
+                .append($("<i></i>").addClass("edit outline icon")).append("修改").addClass("alter");
+            var btn_del=$("<button></button>").addClass("ui red button")
+                .append($("<i></i>").addClass("trash alternate icon")).append("删除").addClass("del");
+            var td_btn=$("<td></td>").append(btn_alter).append(btn_del);
+            tr.append(td_id).append(td_title).append(td_type).append(td_recommend).append(td_status).append(td_update).append(td_btn).appendTo("#blog_list")
+        })
+
+    }
+    /**
+     * 格式化日期
+     */
+    function FormatDate(date1) {
+        var year = date1.getUTCFullYear();
+        var month = date1.getMonth();
+        var day = date1.getUTCDay();
+        var hours = date1.getHours();
+        var minutes = date1.getUTCMinutes();
+        var seconds = date1.getUTCSeconds();
+        return year+"年"+month+"月"+day+"日 "+hours+":"+minutes+":"+seconds;
+    }
+
+    /**
+     * 显示分页条
+     * @param data
+     */
+    var index;
+    function showPage(data){
+        var Paging =data.map.list.number;//当前页码
+        index=Paging;
+        var totalPages =data.map.list.totalPages;//总页数
+        $(".ui.right.floated.pagination.menu").append($("<button></button>").addClass("ui item teal label").append("当前页码【"+(Paging+1)+"】总页数【"+totalPages+"】"));
+        var up = $("<button></button>").addClass("ui teal button item").append("上一页");
+        up.click(function () {
+            showAll(Paging-1)
+        });
+        if(!data.map.list.first){
+            $(".ui.right.floated.pagination.menu").append(up)
+        }
+
+        var down = $("<button></button>").addClass("ui teal button item").append("下一页");
+        down.click(function () {
+            showAll(Paging+1)
+        });
+        if(!data.map.list.last){
+            $(".ui.right.floated.pagination.menu").append(down)
+        }
+    }
+
+    /**
+     * 显示分类
+     * @param data
+     */
+    function showTypes(data) {
+        var list = data.map.list;
+        $.each(list,function (index,i) {
+            $("<div></div>").addClass("item").attr("data-value",i.id).append(i.name).appendTo("#types");
+        })
+    }
+    /**
+     * 点击删除
+     */
+    $(document).on("click",".del",function () {
+        var id=$(this).parents("tr").find("td:eq(0)").text();
+        var name=$(this).parents("tr").find("td:eq(1)").text();
+        if(confirm("确认删除博客:【"+name+"】吗？？")){
+            $.ajax({
+                type:"DELETE",
+                url:"/delBlog/"+id,
+                success:function (data) {
+                    if(data.code==200){
+                        showAll(index)
+                    }else{
+                        alert("删除失败")
+                    }
+                }
+            })
+        }
+    });
+    /**
+     * 点击搜索
+     */
+    $("#Search").click(function () {
+        $(".ui.right.floated.pagination.menu").empty();
+        $("#blog_list").empty();
+        $.ajax({
+            type:"GET",
+            url:"/blogSearch/"+index,
+            data:$("#Search-form").serialize(),
+            success:function (data) {
+                showBlog(data);
+                showPage(data);
+                showMessage(data);
+            }
+        })
+    });
+
+    /**
+     * 显示搜索信息
+     * 共搜索到<h4 class="ui orange header" style="display: inline-block !important;">3</h4>记录
+     <a href="/blogList"><i class="close icon"></i></a>
+     * @param data
+     */
+    function showMessage(data) {
+        $("#search-Result").empty();
+        $("#search-Result").append("共搜索到").append($("<h4></h4>").addClass("ui orange header")
+            .attr("style","display: inline-block !important;").append(data.map.list.totalElements))
+            .append("记录").append($("<a></a>").attr("href","/blogList")
+            .append($("<i></i>").addClass("close icon")))
+    }
+
+    $(document).on("click",".alter",function () {
+        if($(this).parents("tr").find("td:eq(4)").text()=="已发布"){
+            alert("该博客已发布，不能修改！！");
+        }else {
+            location.href="/blogAlter?blogId="+$(this).parents("tr").find("td:eq(0)").text()
+        }
+    })
+
+</script>
+</body>
+</html>
